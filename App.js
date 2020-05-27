@@ -1,19 +1,58 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
+import React, { useState, useEffect } from "react";
+import { View , StyleSheet, ScrollView} from "react-native";
+import SearchBar from "./src/component/SearchBar";
+import Display from "./src/component/display";
+import * as BookApi from "./src/api/BooksAPI";
+import Shelf from './src/component/shelf'
 export default function App() {
+  const [term, setTerm] = useState("");
+  const [result, setResult] = useState([]);
+  const [all, setAll] = useState([]);
+  
+  const SearchApi = (SearchItem) => {
+    BookApi.search(SearchItem).then((book) => {
+      setResult(book);
+    });
+    setResult([])
+  }
+  const All = () =>{
+    BookApi.getAll().then((book) => {
+      let books = book
+      setAll(books)
+    })
+  }
+  
+ 
+  useEffect(() => {
+   
+    All()
+  }, []);
+  console.log(all)
+
+  
+  
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
+    <><ScrollView>
+      <SearchBar
+        SearchItem={term}
+        change={(newTerm) => setTerm(newTerm)}
+        endWrite={() => {
+          SearchApi(term);
+        }}
+      />
+      
+      {result.length === 0 ? <Shelf allBook  = {all}  /> : <Display data = {result} /> }
+      
+       
+      </ScrollView>  
+      
+    </>
   );
 }
-
+ 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  main: {
+    backgroundColor :"#f7f7f7"
+
+},
+})
